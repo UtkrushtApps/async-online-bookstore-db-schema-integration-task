@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: bookstore_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    command:
+      - "postgres"
+    volumes:
+      - /root/task/data/pgdata:/var/lib/postgresql/data
+    networks:
+      - bookstore-network
+    environment:
+      POSTGRES_USER: bookstore_user
+      POSTGRES_PASSWORD: BookstorePass456
+      POSTGRES_DB: bookstore_db
+
+  api:
+    build:
+      context: /root/task
+      dockerfile: Dockerfile
+    container_name: bookstore_api
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    volumes:
+      - /root/task/:/root/task/
+    working_dir: /root/task
+    networks:
+      - bookstore-network
+
+networks:
+  bookstore-network:
+    driver: bridge
